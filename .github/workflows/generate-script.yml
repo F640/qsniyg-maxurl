@@ -1,0 +1,61 @@
+on:
+  push:
+    branches:
+       - 'master'
+
+jobs:
+  build-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: checkout patcher repo
+        uses: actions/checkout@v4
+        with:
+          ref: mod-scripts
+
+      - name: checkout script repo from upstream
+        uses: actions/checkout@v4
+        with:
+          repository: qsniyg/maxurl
+          path: maxurl
+      
+      - name: run patcher script
+        run: chmod +x generate.sh && ./generate.sh
+
+      - name: upload artifact 1
+        uses: actions/upload-artifact@v4
+        with:
+          name: maxurl.meta.js
+          path:
+            maxurl.meta.js
+
+      - name: upload artifact 2
+        uses: actions/upload-artifact@v4
+        with:
+          name: maxurl.user.js
+          path:
+            maxurl.user.js
+
+      - name: upload artifact 3
+        uses: actions/upload-artifact@v4
+        with:
+          name: maxurl_min.meta.js
+          path:
+            maxurl_min.meta.js
+
+      - name: upload artifact 4
+        uses: actions/upload-artifact@v4
+        with:
+          name: maxurl_min.user.js
+          path:
+            maxurl_min.user.js
+
+      - name: deploy script
+        uses: stefanzweifel/git-auto-commit-action@v6
+        with:
+          commit_message: update from upstream
+          branch: dist
+          file_pattern: 'maxurl.meta.js maxurl.user.js maxurl_min.meta.js maxurl_min.user.js'
