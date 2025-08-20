@@ -69,4 +69,5 @@ jobs:
           commit_user_name: not-me[bot]
           commit_message: update from upstream
           branch: dist
+          repository: dist
           file_pattern: 'maxurl.meta.js maxurl.user.js maxurl_min.meta.js maxurl_min.user.js'
