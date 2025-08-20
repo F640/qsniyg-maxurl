@@ -8,6 +8,9 @@ jobs:
   build-script:
     runs-on: ubuntu-latest
     steps:
+      - run: |
+          git config --local user.email "not-me[bot]@users.noreply.github.com"
+          git config --local user.name "not me [Bot]"
       - uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
@@ -66,8 +69,10 @@ jobs:
       - name: deploy script
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
-          commit_user_name: not-me[bot]
-          commit_message: update from upstream
+          commit_user_name: not me [bot]
+          commit_user_email: not-me[bot]@users.noreply.github.com
+          commit_author: not me [bot] <not-me[bot]@users.noreply.github.com>
+          commit_message: update from upstream https://redirect.github.com/qsniyg/maxurl/commit/$(cd maxurl && git rev-parse HEAD)
           branch: dist
           repository: dist
           file_pattern: 'maxurl.meta.js maxurl.user.js maxurl_min.meta.js maxurl_min.user.js'
