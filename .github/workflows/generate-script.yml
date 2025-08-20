@@ -22,6 +22,12 @@ jobs:
         with:
           repository: qsniyg/maxurl
           path: maxurl
+
+      - name: checkout distribution branch
+        uses: actions/checkout@v4
+        with:
+          ref: dist
+          path: dist
       
       - name: run patcher script
         run: chmod +x generate.sh && ./generate.sh
@@ -54,9 +60,13 @@ jobs:
           path:
             maxurl_min.user.js
 
+      - name: copy script to dist folder
+        run: cp maxurl.user.js maxurl.meta.js maxurl_min.user.js maxurl_min.meta.js dist/
+        
       - name: deploy script
         uses: stefanzweifel/git-auto-commit-action@v6
         with:
+          commit_user_name: not-me[bot]
           commit_message: update from upstream
           branch: dist
           file_pattern: 'maxurl.meta.js maxurl.user.js maxurl_min.meta.js maxurl_min.user.js'
