@@ -77,7 +77,7 @@ var __assign = (this && this.__assign) || function() {
 // @description:zh-TW 為9800多個網站查找更大或原始圖像
 // @description:zh-HK 為9800多個網站查找更大或原始圖像
 // @namespace         http://tampermonkey.net/
-// @version           main-6d58450
+// @version           main-c49f316
 // @author            qsniyg
 // @homepageURL       https://qsniyg.github.io/maxurl/options.html
 // @supportURL        https://github.com/qsniyg/maxurl/issues
@@ -22638,6 +22638,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 			domain === "cdn.cbpaas.net" ||
 			domain === "static.the-independent.com" ||
 			domain === "file.kbb.com" ||
+			domain_nosub === "1stdibscdn.com" ||
 			src.match(/\/demandware\.static\//) ||
 			src.match(/\?i10c=[^/]*$/) ||
 			/^[a-z]+:\/\/[^?]*\/wp(?:-content\/+(?:uploads|blogs.dir)|\/+uploads)\//.test(src)
@@ -22679,7 +22680,9 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 			domain === "mz.eastday.com" ||
 			domain === "s.isanook.com" ||
 			domain === "img.kwcdn.com" ||
-			domain_nosub === "fengimg.com") {
+			domain === "aimg.kwcdn.com" ||
+			domain_nosub === "fengimg.com" ||
+			/\?image(?:Mogr|View)2\/(?:format|thumbnail|auto-orient|crop|strip)\//.test(src)) {
 			src = src.replace(/\?.*$/, "");
 		}
 		if ((domain_nosub === "tradesy.com" && domain.match(/^item[0-9]*\.tradesy/) && string_indexof(src, "/images/") >= 0) ||
@@ -27314,7 +27317,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 		if (domain_nowww === "sass.com.ua" ||
 			domain === "media.globalcitizen.org" ||
 			(domain_nowww === "kexp.org" && /:\/\/[^/]+\/+media\//.test(src)) ||
-			domain === "bento.cdn.pbs.org") {
+			domain_nosub === "pbs.org") {
 			return src.replace(/\/(?:filer_)?(?:public_)?thumbnails\/+(.*\/[^/]*?\.[a-z]+)__[^/]*(?:[?#].*)?$/, "/$1");
 		}
 		if (domain === "files.sharenator.com") return src.replace(/(:\/\/[^/]*\/)[^/.]+-s[0-9]+x[0-9]+-([0-9]{4,})(?:-[0-9]*)?(\.[^/.]*)$/, "$1$2$3");
@@ -32569,6 +32572,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 		if (domain_nosub === "crunchyroll.com" && domain.match(/img[0-9]*\.[^/.]*\.crunchyroll\.com/)) {
 			return src.replace(/(\/[0-9a-f]+)_(?:thumb|full)(\.[^/.]*)$/, "$1_main$2");
 		}
+		if (domain_nowww === "crunchyroll.com") return src.replace(/:\/\/[^/]+\/+imgsrv\/+.*?\/(catalog\/+crunchyroll\/)/, "://imgsrv.crunchyroll.com/$1");
 		if (domain === "d3ieicw58ybon5.cloudfront.net") {
 			return {
 				url: src
@@ -37422,6 +37426,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 			domain_nowww === "weleaked.com" ||
 			domain_nowww === "leak.xxx" ||
 			domain_nowww === "sexvid.xxx" ||
+			domain_nowww === "sortporn.com" ||
 			domain_nosub === "mylust.com" ||
 			domain_nosub === "yourlust.com" ||
 			domain_nowww === "pornrewind.com") {
@@ -38424,6 +38429,18 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 							Referer: resp.finalUrl
 						}
 					}), 60 * 60);
+				}
+			});
+			if (newsrc)
+				return newsrc;
+		}
+		if (domain_nowww === "pornoxo.com") {
+			newsrc = website_query({
+				website_regex: /^[a-z]+:\/\/[^/]+\/+videos\/+([^/]+)\/+(?:[^/]*\/*)?(?:[?#].*)?$/,
+				query_for_id: "https://" + domain + "/videos/${id}/",
+				process: function(done, resp) {
+					var obj = common_functions["get_videotag_obj"](resp);
+					done(obj, obj ? 60 * 60 : false);
 				}
 			});
 			if (newsrc)
@@ -62927,7 +62944,20 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 		if (domain === "media.comikey.com") return src.replace(/:\/\/[^/]+\/+gazo\/+[0-9]+\/+[a-z]+\/+/, "://comikey.com/media/");
 		if (domain_nowww === "wright20.com") return src.replace(/\/items\/+index\/+[0-9]+\/+/, "/items/index/0/");
 		if (domain === "image.civitai.com") return src.replace(/^([a-z]+:\/\/[^/]+\/+[^/]+\/+[^/]+\/+)(?:width|height|original)=[^/]+\/+/, "$1original=true/");
-		if (domain_nowww === "vxxx.com" && options.do_request && options.cb) {
+		if ((domain_nowww === "vxxx.com" ||
+			domain_nowww === "abmilf.com" ||
+			domain_nowww === "01tube.com" ||
+			domain_nowww === "inporn.com" ||
+			domain_nowww === "porntop.com" ||
+			domain_nowww === "xmilf.com" ||
+			domain_nowww === "bdsmx.tube" ||
+			domain_nowww === "blackporn.tube" ||
+			domain_nowww === "aniporn.com" ||
+			domain_nowww === "lesbigo.com" ||
+			domain_nowww === "vr-porn.tube" ||
+			domain_nowww === "xjav.tube" ||
+			domain_nowww === "manysex.com" ||
+			domain_nowww === "porn-latina.com") && options.do_request && options.cb) {
 			var vxxx_b64_1 = function(e) {
 				return base64_decode(e
 					.replace(/\u0410/g, "A") // А
@@ -62941,7 +62971,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 			};
 			var get_vxxx_video_1 = function(id, cb) {
 				api_query("vxxx:" + id, {
-					url: "https://vxxx.com/api/videofile.php?video_id=" + id + "&lifetime=8640000",
+					url: "https://" + domain_nosub + "/api/videofile.php?video_id=" + id + "&lifetime=8640000",
 					imu_mode: "xhr"
 				}, cb, function(done, resp, cache_key) {
 					var json = JSON_parse(resp.responseText);
@@ -62968,9 +62998,20 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 					return done(urls, 12 * 60 * 60);
 				});
 			};
+			var get_page_for_vxxx_video_1 = function(id) {
+				if (domain_nosub === "vxxx.com") {
+					return "https://" + domain + "/video-" + id + "/";
+				} else if (domain_nosub === "porn-latina.com" ||
+					domain_nosub === "lesbigo.com" ||
+					domain_nosub === "01tube.com") {
+					return "https://" + domain + "/videos/" + id + "/";
+				} else {
+					return "https://" + domain + "/video/" + id + "/a";
+				}
+			};
 			var get_vxxx_meta_1 = function(id, cb) {
 				api_query("vxxx_meta:" + id, {
-					url: "https://vxxx.com/api/json/video/86400/0/" + ((id / 1000) | 0) + "/" + id + ".json",
+					url: "https://" + domain_nosub + "/api/json/video/86400/0/" + ((id / 1000) | 0) + "/" + id + ".json",
 					imu_mode: "xhr",
 					json: true
 				}, cb, function(done, resp, cache_key) {
@@ -62978,20 +63019,23 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 						caption: resp.video.title,
 						author_username: resp.video.user.username,
 						created_date: new Date(resp.video.post_date).getTime(),
-						page: "https://vxxx.com/video-" + id + "/"
+						page: get_page_for_vxxx_video_1(id)
 					};
 					return done(extra, 6 * 60 * 60);
 				});
 			};
 			newsrc = website_query({
-				website_regex: /^[a-z]+:\/\/[^/]+\/+video-([0-9]+)\/*(?:[?#].*)?$/,
+				website_regex: [
+					/^[a-z]+:\/\/[^/]+\/+video-([0-9]+)\/*(?:[?#].*)?$/, // vxxx
+					/^[a-z]+:\/\/[^/]+\/+videos?\/+([0-9]+)(?:\/.*)?(?:[?#].*)?$/, // abmilf (video), porn-latina (videos)
+				],
 				run: function(cb, match) {
 					get_vxxx_video_1(match[1], function(resp) {
 						if (!resp)
 							return cb(null);
 						var baseobj = {
 							extra: {
-								page: "https://vxxx.com/video-" + match[1] + "/"
+								page: get_page_for_vxxx_video_1(match[1])
 							}
 						};
 						if (options.force_page) {
