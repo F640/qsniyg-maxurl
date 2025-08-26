@@ -72,8 +72,7 @@ if [ -z "${IMU_ORIG_VER}" ]; then
     IMU_ORIG_VER=$(grep -Po -m 1 '^\/\/\s*@version\s*\K.*$' maxurl/userscript.meta.js | head -1)
     if [ -z "${IMU_ORIG_VER}" ]; then
         echo "version not found, will use commit versioning instead (auto-updates will not work properly)"
-    else
-        IMU_CUR_VER=main-$REPO_SHORT_COMMIT
+        IMU_CUR_VER="main-${REPO_SHORT_COMMIT}"
     fi
 fi
 # compare vanilla upstream with current fork if version is found in source
