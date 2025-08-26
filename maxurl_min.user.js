@@ -77,7 +77,7 @@ var __assign = (this && this.__assign) || function() {
 // @description:zh-TW 為9800多個網站查找更大或原始圖像
 // @description:zh-HK 為9800多個網站查找更大或原始圖像
 // @namespace         http://tampermonkey.net/
-// @version           main-c49f316
+// @version           main-5c52f88
 // @author            qsniyg
 // @homepageURL       https://qsniyg.github.io/maxurl/options.html
 // @supportURL        https://github.com/qsniyg/maxurl/issues
@@ -27229,7 +27229,11 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 				.replace(/(\/books\/[0-9]*)[a-z]\//, "$1l/");
 		}
 		if (domain === "dynamic.indigoimages.ca") return src.replace(/(\?.*)?$/, "?width=999999999");
-		if (domain === "cdn.mos.cms.futurecdn.net") return src.replace(/-[0-9]+-[0-9]+(\.[^/.]*(?:\.webp)?)(?:[?#].*)?$/, "$1");
+		if (domain === "cdn.mos.cms.futurecdn.net") {
+			return src
+				.replace(/(\/[0-9a-zA-Z]+\.[a-z]+)\.webp(?:[?#].*)?$/, "$1")
+				.replace(/-[0-9]+-[0-9]+(\.[^/.]*(?:\.webp)?)(?:[?#].*)?$/, "$1");
+		}
 		if (domain === "www.allkpop.com") {
 			return src
 				.replace(/\/af\/([0-9]*\/[^/]*)$/, "/af_org/$1")
@@ -63601,7 +63605,19 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 				return newsrc;
 			match = src.match(/\/img\/+[^/]+\/+plain\/+(did:plc:[a-z0-9]+)\/+([0-9a-z]+)(?:@[a-z]+)?(?:[?#].*)?$/);
 			if (match) {
-				return "https://bsky.social/xrpc/com.atproto.sync.getBlob?did=" + match[1] + "&cid=" + match[2];
+				return {
+					url: "https://bsky.social/xrpc/com.atproto.sync.getBlob?did=" + match[1] + "&cid=" + match[2],
+					filename: match[2]
+				};
+			}
+		}
+		if (domain_nosub === "bsky.network") {
+			match = src.match(/\/com\.atproto\.sync\.getBlob\?(?:.*&)?cid=([0-9a-z]+)/);
+			if (match) {
+				return {
+					url: src,
+					filename: match[1]
+				};
 			}
 		}
 		if (domain_nosub === "24chasa.bg" && /^cache[0-9]*\./.test(domain)) {
@@ -66946,6 +66962,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 				return add_full_extensions(newsrc, ["webp", "jpg"]);
 			}
 		}
+		if (domain_nowww === "rightutors.com") return src.replace(/(\/image\/+show\/+[0-9]+\/+[0-9]+\/+)(?:SMALL|MEDIUM|LARGE)(?:[?#].*)?$/, "$1ORIGINAL");
 		if (src.match(/\/ImageGen\.ashx\?/)) {
 			return urljoin(src, src.replace(/.*\/ImageGen\.ashx.*?image=([^&]*).*/, "$1"));
 		}
