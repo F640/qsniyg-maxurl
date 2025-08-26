@@ -17,10 +17,15 @@ jobs:
         with:
           node-version: 'lts/*'
 
-      - name: checkout patcher repo
+      - name: checkout patcher branch
         uses: actions/checkout@v4
         with:
           ref: mod-scripts
+
+      - name: checkout distribution branch
+        uses: actions/checkout@v4
+        with:
+          ref: dist
 
       - name: checkout script repo from upstream
         uses: actions/checkout@v4
@@ -28,48 +33,21 @@ jobs:
           repository: qsniyg/maxurl
           path: maxurl
 
-      - name: checkout distribution branch
-        uses: actions/checkout@v4
-        with:
-          ref: dist
-          path: dist
-
       - name: retrieve upstream commit
-        run: echo "UPSTREAM_MAXURL_SHA=$(cd maxurl && git rev-parse HEAD)" >> $GITHUB_ENV
+        run: echo "IMU_UPSTREAM_SHA=$(cd maxurl && git rev-parse HEAD)" >> $GITHUB_ENV
         
       - name: run patcher script
         run: chmod +x generate.sh && ./generate.sh
 
-      - name: upload artifact 1
-        uses: actions/upload-artifact@v4
-        with:
-          name: maxurl.meta.js
-          path:
-            maxurl.meta.js
-
-      - name: upload artifact 2
-        uses: actions/upload-artifact@v4
-        with:
-          name: maxurl.user.js
-          path:
-            maxurl.user.js
-
-      - name: upload artifact 3
-        uses: actions/upload-artifact@v4
-        with:
-          name: maxurl_min.meta.js
-          path:
-            maxurl_min.meta.js
-
-      - name: upload artifact 4
-        uses: actions/upload-artifact@v4
-        with:
-          name: maxurl_min.user.js
-          path:
-            maxurl_min.user.js
-
       - name: copy script to dist folder
         run: cp maxurl.user.js maxurl.meta.js maxurl_min.user.js maxurl_min.meta.js dist/
+
+      - name: upload result artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: maxurl-uodev-build-${{ env.IMU_UPSTREAM_SHA }}
+          path: dist
+          compression-level: 9
         
       - name: deploy script
         uses: stefanzweifel/git-auto-commit-action@v6
@@ -77,7 +55,7 @@ jobs:
           commit_user_name: not me [bot]
           commit_user_email: not-me[bot]@users.noreply.github.com
           commit_author: not me [bot] <not-me[bot]@users.noreply.github.com>
-          commit_message: update from upstream https://redirect.github.com/qsniyg/maxurl/commit/${{ env.UPSTREAM_MAXURL_SHA }}
+          commit_message: generate new from upstream https://redirect.github.com/qsniyg/maxurl/commit/${{ env.IMU_UPSTREAM_SHA }}
           branch: dist
           repository: dist
-          file_pattern: 'maxurl.meta.js maxurl.user.js maxurl_min.meta.js maxurl_min.user.js'
+          file_pattern: 'maxurl.meta.js maxurl.user.js maxurl_min.meta.js maxurl_min.user.js versioner.txt'
