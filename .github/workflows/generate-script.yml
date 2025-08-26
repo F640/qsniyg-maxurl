@@ -1,12 +1,14 @@
 on:
   push:
-    branches:
-       - master
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   build-script:
     runs-on: ubuntu-latest
+    if: $ {{ (github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.event_name == 'workflow_dispatch') }}
     steps:
       - run: |
           git config --global user.email "not-me[bot]@users.noreply.github.com"
@@ -31,7 +33,10 @@ jobs:
         with:
           ref: dist
           path: dist
-      
+
+      - name: retrieve upstream commit
+        run: echo "UPSTREAM_MAXURL_SHA=$(cd maxurl && git rev-parse HEAD)" >> $GITHUB_ENV
+        
       - name: run patcher script
         run: chmod +x generate.sh && ./generate.sh
 
@@ -72,7 +77,7 @@ jobs:
           commit_user_name: not me [bot]
           commit_user_email: not-me[bot]@users.noreply.github.com
           commit_author: not me [bot] <not-me[bot]@users.noreply.github.com>
-          commit_message: update from upstream https://redirect.github.com/qsniyg/maxurl/commit/${ cd maxurl && git rev-parse HEAD }
+          commit_message: update from upstream https://redirect.github.com/qsniyg/maxurl/commit/${{ env.UPSTREAM_MAXURL_SHA }}
           branch: dist
           repository: dist
           file_pattern: 'maxurl.meta.js maxurl.user.js maxurl_min.meta.js maxurl_min.user.js'
