@@ -1,8 +1,23 @@
 on:
-  push:
-    branches:
-      - '**/**'
+  pull_request:
+    types:
+      - closed
   workflow_dispatch:
+    inputs:
+      upload_artifact:
+        type: boolean
+        required: true
+        default: true
+        description: Upload built artifact
+      deploy_script:
+        type: boolean
+        required: true
+        default: false
+        description: Deploy the script
+
+env:
+  UPLOAD_ARTIFACT: true
+  DEPLOY_SCRIPT: true
 
 permissions:
   contents: write
@@ -10,7 +25,7 @@ permissions:
 jobs:
   build-script:
     runs-on: ubuntu-latest
-    if: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/master') || (github.event_name == 'workflow_dispatch') }}
+    if: ${{ ((github.event.pull_request.merged && github.event.pull_request.user.login == 'pull[bot]') && (github.env.UPLOAD_ARTIFACT || github.env.DEPLOY_SCRIPT)) || (github.event_name == 'workflow_dispatch' && ( github.event.inputs.upload_artifact || github.event.inputs.deploy_script )) }}
     steps:
       - run: |
           git config --global user.email "not-me[bot]@users.noreply.github.com"
@@ -47,6 +62,7 @@ jobs:
 
       - name: upload result artifact
         uses: actions/upload-artifact@v4
+        if: ${{ github.event.inputs.upload_artifact || (github.event_name != 'workflow_dispatch' && github.env.UPLOAD_ARTIFACT) }}
         with:
           name: maxurl-uodev-build-${{ env.IMU_UPSTREAM_SHA }}
           path: dist
@@ -54,6 +70,7 @@ jobs:
         
       - name: deploy script
         uses: stefanzweifel/git-auto-commit-action@v6
+        if: ${{ github.event.inputs.deploy_script || (github.event_name != 'workflow_dispatch' && github.env.DEPLOY_SCRIPT) }}
         with:
           commit_user_name: not me [bot]
           commit_user_email: not-me[bot]@users.noreply.github.com
