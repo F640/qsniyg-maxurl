@@ -77,7 +77,7 @@ var __assign = (this && this.__assign) || function() {
 // @description:zh-TW 為9800多個網站查找更大或原始圖像
 // @description:zh-HK 為9800多個網站查找更大或原始圖像
 // @namespace         http://tampermonkey.net/
-// @version           2025.5.0dev1
+// @version           2025.5.0dev2
 // @author            qsniyg
 // @homepageURL       https://qsniyg.github.io/maxurl/options.html
 // @supportURL        https://github.com/qsniyg/maxurl/issues
@@ -99,6 +99,7 @@ var __assign = (this && this.__assign) || function() {
 // @grant             GM.notification
 // @grant             GM_setClipboard
 // @grant             GM.setClipboard
+// @grant             GM_cookie
 // @connect           *
 // api.github.com is used for checking for updates (can be disabled through the "Check Updates" setting)
 // @connect           api.github.com
@@ -2092,10 +2093,49 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 				data.responseType = "arraybuffer";
 				data.imu_responseType = "blob";
 			}
+			var promises = [];
+			if (data.imu_cookies) {
+				var cookies_dict_1 = {};
+				var setcookies_1 = function() {
+					for (var cookiename in data.imu_cookies) {
+						cookies_dict_1[cookiename] = data.imu_cookies[cookiename];
+					}
+					var cookies_list = headers_dict_to_list(cookies_dict_1);
+					var cookie_header = cookies_to_httpheader(cookies_list);
+					headerobj_set(data.headers, "Cookie", cookie_header);
+				};
+				if (get_cookies && data.url) {
+					promises.push(new Promise(function(resolve, reject) {
+						get_cookies(data.url, function(cookies) {
+							if (cookies)
+								cookies_dict_1 = headers_list_to_dict(cookies);
+							setcookies_1();
+							resolve(null);
+						});
+					}));
+				} else {
+					setcookies_1();
+				}
+			}
 			if (_nir_debug_) {
 				console_log("do_request (modified data):", deepcopy(data));
 			}
-			return raw_request_do(data);
+			var req_obj = null;
+			var do_abort = false;
+			Promise.all(promises).then(function() {
+				req_obj = raw_request_do(data);
+				if (do_abort)
+					req_obj.abort();
+			});
+			return {
+				abort: function() {
+					if (!req_obj) {
+						do_abort = true;
+					} else {
+						req_obj.abort();
+					}
+				}
+			};
 		};
 	} else if (is_interactive) {
 		console.warn("Unable to initialize do_request, most functions will likely fail");
@@ -2627,7 +2667,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 		};
 	} else if (is_userscript) {
 		// TODO: support GM_cookie
-		get_cookies = function(url, cb, options) {
+		var get_cookies_browser_1 = function(url, cb, options) {
 			if (settings.browser_cookies === false) {
 				return cb(null);
 			}
@@ -2648,6 +2688,18 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 				cb(null);
 			}
 		};
+		if (typeof GM_cookie === "function") {
+			get_cookies = function(url, cb, options) {
+				GM_cookie("list", { url: url }, function(cookies) {
+					if (!cookies || !cookies.length) {
+						return get_cookies_browser_1(url, cb, options);
+					}
+					return cb(cookies);
+				});
+			};
+		} else {
+			get_cookies = get_cookies_browser_1;
+		}
 	}
 	var _localstorage_check_origin = function(url) {
 		var url_domain = get_domain_from_url(url);
@@ -36181,14 +36233,26 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 			};
 			newsrc = website_query({
 				website_regex: /^[a-z]+:\/\/[^/]+\/+image\/+([0-9a-f]+)(?:[?#].*)?$/,
-				query_for_id: "https://www.imagebam.com/image/${id}",
+				query_for_id: {
+					url: "https://www.imagebam.com/image/${id}",
+					imu_cookies: {
+						sfw_inter: "1",
+						nsfw_inter: "1"
+					}
+				},
 				process: process_imagebam
 			});
 			if (newsrc)
 				return newsrc;
 			newsrc = website_query({
 				website_regex: /^[a-z]+:\/\/[^/]+\/+view\/+([0-9A-Z]+)(?:[?#].*)?$/,
-				query_for_id: "https://www.imagebam.com/view/${id}",
+				query_for_id: {
+					url: "https://www.imagebam.com/view/${id}",
+					imu_cookies: {
+						sfw_inter: "1",
+						nsfw_inter: "1"
+					}
+				},
 				process: process_imagebam
 			});
 			if (newsrc)
@@ -80840,13 +80904,13 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 			var resize_handler = function() {
 				reposition_source_outlines();
 			};
-			our_addEventListener(window, "resize", resize_handler);
+			our_addEventListener(get_window(), "resize", resize_handler);
 			exit_custom_gallery = function() {
 				if (alt_keydown_cb === our_keydown_cb)
 					alt_keydown_cb = null;
 				set_remove(exclude_find_els, maskel);
 				base_maskel.parentElement.removeChild(base_maskel);
-				our_removeEventListener(window, "resize", resize_handler);
+				our_removeEventListener(get_window(), "resize", resize_handler);
 				exit_custom_gallery = null;
 			};
 			var trigger_popup = function(options) {
@@ -82854,7 +82918,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 			our_addEventListener(document, 'mouseup', keyup_cb, eventlistener_opts);
 			our_addEventListener(document, 'contextmenu', update_contextmenu_pos);
 			our_addEventListener(document, 'focus', tabactive_cb);
-			our_addEventListener(window, 'focus', tabactive_cb);
+			our_addEventListener(get_window(), 'focus', tabactive_cb);
 			our_addEventListener(document, 'keydown', tabactive_cb);
 			our_addEventListener(document, 'wheel', tabactive_cb);
 			our_addEventListener(document, 'mousemove', tabactive_cb);
