@@ -77,7 +77,7 @@ var __assign = (this && this.__assign) || function() {
 // @description:zh-TW 為9800多個網站查找更大或原始圖像
 // @description:zh-HK 為9800多個網站查找更大或原始圖像
 // @namespace         http://tampermonkey.net/
-// @version           2025.5.0dev2
+// @version           2025.5.0dev3
 // @author            qsniyg
 // @homepageURL       https://qsniyg.github.io/maxurl/options.html
 // @supportURL        https://github.com/qsniyg/maxurl/issues
@@ -70292,6 +70292,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 		if (!is_array(list[0])) {
 			list = [list];
 		}
+		list = list;
 		var result = [];
 		for (var i = 0; i < list.length; i++) {
 			result.push(get_single_trigger_key_text(list[i]));
@@ -70804,6 +70805,79 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 		keys[str] = value;
 		return keys;
 	}
+	var IMUSingleChord = /** @class */ (function() {
+		function IMUSingleChord(chord) {
+			this.chord = [];
+			if (chord)
+				this.chord = chord;
+		}
+		IMUSingleChord.prototype.clear = function() {
+			this.chord = [];
+		};
+		IMUSingleChord.prototype.copy = function() {
+			return new IMUSingleChord(deepcopy(this.chord));
+		};
+		IMUSingleChord.prototype.hasKey = function(keystr) {
+			return array_indexof(this.chord, keystr) >= 0;
+		};
+		IMUSingleChord.prototype.setKey = function(keystr, value) {
+			if (value) {
+				if (!this.hasKey(keystr)) {
+					this.chord.push(keystr);
+				}
+			} else {
+				var index = array_indexof(this.chord, keystr);
+				if (index >= 0) {
+					this.chord.splice(index, 1);
+				}
+			}
+		};
+		IMUSingleChord.prototype.isEmpty = function() {
+			return this.chord.length === 0;
+		};
+		IMUSingleChord.prototype.isOnlyWheel = function() {
+			for (var _i = 0, _a = this.chord; _i < _a.length; _i++) {
+				var key = _a[_i];
+				if (!keystr_is_wheel(key) && !keystr_is_button12(key)) {
+					return false;
+				}
+			}
+			return true;
+		};
+		IMUSingleChord.prototype.isOnlyButton1 = function() {
+			if (this.chord.length !== 1)
+				return false;
+			return keystr_is_button12(this.chord[0]);
+		};
+		IMUSingleChord.prototype.isBad = function() {
+			if (this.isOnlyWheel())
+				return true;
+			if (this.isOnlyButton1())
+				return true;
+			return false;
+		};
+		IMUSingleChord.prototype.isValid = function() {
+			if (this.chord.length === 0)
+				return false;
+			if (this.isBad())
+				return false;
+			if (this.chord.length > 1)
+				return true;
+			return true;
+		};
+		IMUSingleChord.prototype.getTriggerKeyText = function() {
+			return get_single_trigger_key_text(this.chord);
+		};
+		IMUSingleChord.prototype.clearWheelKeys = function() {
+			for (var i = 0; i < this.chord.length; i++) {
+				if (keystr_is_wheel(this.chord[i])) {
+					this.chord.splice(i, 1);
+					i--;
+				}
+			}
+		};
+		return IMUSingleChord;
+	}());
 	var keystr_is_wheel = function(keystr) {
 		return /^wheel/.test(keystr);
 	};
@@ -70811,30 +70885,6 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 		// allow rebinding right click
 		// todo: maybe add a warning if done globally (e.g. trigger key)?
 		return keystr === "button1"; // || keystr === "button2";
-	};
-	var chord_is_only_wheel = function(chord) {
-		for (var i = 0; i < chord.length; i++) {
-			if (!keystr_is_wheel(chord[i]) && !keystr_is_button12(chord[i])) {
-				return false;
-			}
-		}
-		return true;
-	};
-	var keysequence_bad = function(keyseq) {
-		if (chord_is_only_wheel(keyseq))
-			return true;
-		if (keyseq.length !== 1)
-			return false;
-		return keystr_is_button12(keyseq[0]);
-	};
-	var keysequence_valid = function(keyseq) {
-		if (keyseq.length === 0)
-			return false;
-		if (keysequence_bad(keyseq))
-			return false;
-		if (keyseq.length > 1)
-			return true;
-		return true;
 	};
 	var prefers_dark_mode = function() {
 		try {
@@ -70903,39 +70953,31 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 	function do_options() {
 		update_dark_mode();
 		var recording_keys = false;
-		var options_chord = [];
-		var current_options_chord = [];
+		var options_chord = new IMUSingleChord();
+		var current_options_chord = new IMUSingleChord();
 		function update_options_chord(event, value) {
 			if (!recording_keys)
 				return;
 			var map = get_keystrs_map(event, value);
 			if ((keycode_to_str(event) || event.type === "mousedown") &&
-				current_options_chord.length === 0) {
+				current_options_chord.isEmpty()) {
 				// Don't clear the options chord for either left or right mouse buttons
 				if (event.button !== 0 && event.button !== 2)
-					options_chord = [];
+					options_chord.clear();
 			}
-			var old_options_chord = deepcopy(options_chord);
+			var old_options_chord = options_chord.copy();
 			for (var key in map) {
 				update_options_chord_sub(key, map[key]);
 			}
-			if (keysequence_bad(options_chord))
+			if (options_chord.isBad())
 				options_chord = old_options_chord;
 			recording_keys();
 		}
 		function update_options_chord_sub(str, value) {
 			if (value) {
-				if (array_indexof(options_chord, str) < 0) {
-					options_chord.push(str);
-				}
-				if (array_indexof(current_options_chord, str) < 0) {
-					current_options_chord.push(str);
-				}
-			} else {
-				if (array_indexof(current_options_chord, str) >= 0) {
-					current_options_chord.splice(array_indexof(current_options_chord, str), 1);
-				}
+				options_chord.setKey(str, value);
 			}
+			current_options_chord.setKey(str, value);
 		}
 		document.addEventListener('keydown', function(event) {
 			update_options_chord(event, true);
@@ -72088,22 +72130,22 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 					sub_record_btn.innerText = _("Record");
 					var do_record = function() {
 						if (recording_keys) {
-							if (keysequence_valid(options_chord)) {
-								values[index] = options_chord;
+							if (options_chord.isValid()) {
+								values[index] = options_chord.chord;
 								update_keyseq_setting();
 								//do_update_setting(setting, options_chord, meta);
 								//settings[setting] = options_chord;
 								do_cancel();
 							}
 						} else {
-							options_chord = [];
-							current_options_chord = [];
+							options_chord.clear();
+							current_options_chord.clear();
 							recording_keys = function() {
 								var our_chord = options_chord;
-								if (our_chord.length === 0)
-									our_chord = values[index];
-								sub_key_td.innerText = get_trigger_key_texts(our_chord);
-								if (keysequence_valid(options_chord)) {
+								if (our_chord.isEmpty())
+									our_chord = new IMUSingleChord(values[index]);
+								sub_key_td.innerText = our_chord.getTriggerKeyText();
+								if (options_chord.isValid()) {
 									sub_record_btn.classList.remove("disabled");
 								} else {
 									sub_record_btn.classList.add("disabled");
@@ -74071,7 +74113,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 		var elwaitingstyleclass = null;
 		var elwaitingstyleel = null;
 		var waitingsize = 200;
-		var current_chord = [];
+		var current_chord = new IMUSingleChord();
 		var current_chord_timeout = {};
 		var release_ignore = [];
 		var editing_text = false;
@@ -79378,22 +79420,14 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 		function can_add_to_chord(str) {
 			if (!keystr_is_wheel(str))
 				return true;
-			return !chord_is_only_wheel(current_chord);
-		}
-		function clear_chord_wheel() {
-			for (var i = 0; i < current_chord.length; i++) {
-				if (keystr_is_wheel(current_chord[i])) {
-					current_chord.splice(i, 1);
-					i--;
-				}
-			}
+			return !current_chord.isOnlyWheel();
 		}
 		function clear_chord() {
-			current_chord = [];
+			current_chord.clear();
 			current_chord_timeout = {};
 		}
 		function clear_chord_if_only_wheel() {
-			if (chord_is_only_wheel(current_chord))
+			if (current_chord.isOnlyWheel())
 				clear_chord();
 		}
 		function keystr_in_trigger(str, wanted_chord) {
@@ -79403,10 +79437,10 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 			if (value) {
 				if (!can_add_to_chord(str))
 					return false;
-				if (array_indexof(current_chord, str) < 0)
+				if (!current_chord.hasKey(str))
 					return true;
 			} else {
-				if (array_indexof(current_chord, str) >= 0)
+				if (current_chord.hasKey(str))
 					return true;
 			}
 			return false;
@@ -79416,15 +79450,15 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 				if (!can_add_to_chord(str))
 					return false;
 				current_chord_timeout[str] = Date.now();
-				if (array_indexof(current_chord, str) < 0) {
-					current_chord.push(str);
+				if (!current_chord.hasKey(str)) {
+					current_chord.setKey(str, value);
 					//console_log("+" + str);
 					return true;
 				}
 			} else {
 				delete current_chord_timeout[str];
-				if (array_indexof(current_chord, str) >= 0) {
-					current_chord.splice(array_indexof(current_chord, str), 1);
+				if (current_chord.hasKey(str)) {
+					current_chord.setKey(str, value);
 					clear_chord_if_only_wheel();
 					//console_log("-" + str);
 					return true;
@@ -79491,14 +79525,14 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 		function trigger_complete_single(wanted_chord) {
 			for (var i = 0; i < wanted_chord.length; i++) {
 				var key = wanted_chord[i];
-				if (array_indexof(current_chord, key) < 0)
+				if (!current_chord.hasKey(key))
 					return false;
 			}
 			// e.g. if the user presses shift+r, but the chord is r, then it should fail
-			for (var i = 0; i < current_chord.length; i++) {
-				if (keystr_is_wheel(current_chord[i]))
+			for (var i = 0; i < current_chord.chord.length; i++) {
+				if (keystr_is_wheel(current_chord.chord[i]))
 					continue;
-				if (array_indexof(wanted_chord, current_chord[i]) < 0)
+				if (array_indexof(wanted_chord, current_chord.chord[i]) < 0)
 					return false;
 			}
 			return true;
@@ -79514,7 +79548,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 		function trigger_partially_complete_single(e, wanted_chord) {
 			for (var i = 0; i < wanted_chord.length; i++) {
 				var key = wanted_chord[i];
-				if (array_indexof(current_chord, key) >= 0)
+				if (current_chord.hasKey(key))
 					return true;
 			}
 			return false;
@@ -82314,7 +82348,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 			if (_nir_debug_) nir_debug("input", "keydown_cb", event);
 			if (!mouseover_base_enabled())
 				return;
-			if (event.type === "wheel" && chord_is_only_wheel(current_chord))
+			if (event.type === "wheel" && current_chord.isOnlyWheel())
 				return;
 			if (event.type === "keydown") {
 				// thanks to lnp5131 on github: https://github.com/qsniyg/maxurl/issues/415#issuecomment-684847125
@@ -82582,7 +82616,7 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 				release_ignore = deepcopy(release_ignore);
 			}
 			if (actions && actions.length > 0) {
-				clear_chord_wheel();
+				current_chord.clearWheelKeys();
 				for (var i = 0; i < actions.length; i++) {
 					action_handler(actions[i]);
 				}
