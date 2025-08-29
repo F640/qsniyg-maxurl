@@ -77,7 +77,7 @@ var __assign = (this && this.__assign) || function() {
 // @description:zh-TW 為9800多個網站查找更大或原始圖像
 // @description:zh-HK 為9800多個網站查找更大或原始圖像
 // @namespace         http://tampermonkey.net/
-// @version           2025.5.0dev3
+// @version           2025.5.0dev4
 // @author            qsniyg
 // @homepageURL       https://qsniyg.github.io/maxurl/options.html
 // @supportURL        https://github.com/qsniyg/maxurl/issues
@@ -28799,6 +28799,11 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 			domain === "images.scribblelive.com") {
 			return src.replace(/_[0-9]+(\.[^/.]*)$/, "$1");
 		}
+		if (domain === "cdn.images.express.co.uk") {
+			return src
+				.replace(/\.avif(?:[?#].*)?$/, ".jpg")
+				.replace(/(\/img\/+dynamic\/+[0-9]+\/+)[1-8][0-9]{2}x[0-9]*\/+/, "$1940x/");
+		}
 		if (domain === "www.dhresource.com" ||
 			domain === "image.dhgate.com") {
 			return src
@@ -36029,7 +36034,15 @@ var __generator = (this && this.__generator) || function(thisArg, body) {
 			}
 		}
 		if (domain === "d2pqhom6oey9wx.cloudfront.net") return src.replace(/\/img_(?:thumb|resize)\//, "/img_original/");
-		if (domain === "i.gyazo.com") return src.replace(/\/thumb\/[0-9]+\/([0-9a-f]+)-([a-z]+)\.[^/.]*$/, "/$1.$2");
+		if (domain === "i.gyazo.com") {
+			return {
+				url: src.replace(/\/thumb\/[0-9]+\/([0-9a-f]+)-([a-z]+)\.[^/.]*$/, "/$1.$2"),
+				headers: {
+					Referer: "https://gyazo.com/"
+				}
+			};
+		}
+		if (domain === "thumb.gyazo.com") return src.replace(/(\/thumb\/+)[0-9]+(?:_w)?\/+/, "$19999/");
 		if (domain === "cdn.theatlantic.com") {
 			newsrc = src.replace(/\/thumbor\/.*\/(?:assets\/+)?media\/+/, "/assets/media/");
 			if (newsrc !== src)
