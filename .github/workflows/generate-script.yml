@@ -28,11 +28,18 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ (github.event_name == 'workflow_dispatch' && (github.event.inputs.upload_artifact == 'true' || github.event.inputs.deploy_script == 'true')) || ((github.event.pull_request.merged == 'true' && github.event.pull_request.user.login == 'pull[bot]') && (github.env.DO_UPLOAD_ARTIFACT == 'true' || github.env.DO_DEPLOY_SCRIPT == 'true')) }}
     steps:
-      - run: |
-          git config --global user.email "not-me[bot]@users.noreply.github.com"
-          git config --global user.name "not me [Bot]"
-          echo "UPLOAD_ARTIFACT=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.upload_artifact == 'true') || github.env.DO_UPLOAD_ARTIFACT == 'true' }}" >> $GITHUB_ENV
-          echo "DEPLOY_SCRIPT=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_script == 'true') || github.env.DO_DEPLOY_SCRIPT == 'true' }}" >> $GITHUB_ENV
+      - name: configure early run things
+        run: |
+           git config --global user.email "not-me[bot]@users.noreply.github.com"
+           git config --global user.name "not me [Bot]"
+           echo "DEPLOY_SCRIPT=false" >> $GITHUB_ENV
+           echo "UPLOAD_ARTIFACT=false" >> $GITHUB_ENV
+      - name: configure upload_artifact environment
+        if: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.upload_artifact == 'true') || github.env.DO_UPLOAD_ARTIFACT == 'true' }}
+        run: echo "UPLOAD_ARTIFACT=true" >> $GITHUB_ENV
+      - name: configure deploy_script environment
+        if: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_script == 'true') || github.env.DO_DEPLOY_SCRIPT == 'true' }}
+        run: echo "DEPLOY_SCRIPT=true" >> $GITHUB_ENV
       - uses: actions/setup-node@v4
         with:
           node-version: 'lts/*'
