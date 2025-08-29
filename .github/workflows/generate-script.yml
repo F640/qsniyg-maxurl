@@ -65,7 +65,7 @@ jobs:
 
       - name: upload result artifact
         uses: actions/upload-artifact@v4
-        if: ${{ github.env.UPLOAD_ARTIFACT == true }}
+        if: ${{ github.env.UPLOAD_ARTIFACT == 'true' }}
         with:
           name: maxurl-uodev-build-${{ env.IMU_UPSTREAM_SHA }}
           path: dist
@@ -73,7 +73,7 @@ jobs:
         
       - name: deploy script
         uses: stefanzweifel/git-auto-commit-action@v6
-        if: ${{ github.env.DEPLOY_SCRIPT == true }}
+        if: ${{ github.env.DEPLOY_SCRIPT == 'true' }}
         with:
           commit_user_name: not me [bot]
           commit_user_email: not-me[bot]@users.noreply.github.com
