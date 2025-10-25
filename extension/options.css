@@ -212,8 +212,25 @@ input, textarea {
   color: #e0e0e0;
 }
 
-.dark a {
+a, a.crypto {
+  color: #33f;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a:visited {
+  color: #93f;
+}
+
+.dark a, .dark a.crypto {
   color: #7af;
+}
+
+.dark pre, .dark code, .dark .crypto {
+  background: #1a1a1a;
+  color: #fff;
 }
 
 .dark a:visited {
@@ -287,6 +304,20 @@ hr {
   font-weight: 100;
 }
 
+#footer .current {
+  display: inline-block;
+  margin: 0;
+  color: white;
+  background: #0af;
+  padding: .1em .4em;
+  border-radius: 5px;
+}
+
+.dark #footer .current {
+  color: black;
+  background: #7af;
+}
+
 #footer a, #footer span.current {
   font-weight: 400;
 }
@@ -328,11 +359,15 @@ hr {
 }
 
 #footer a {
+  color: #777;
+}
+
+.dark #footer a {
   color: #999;
 }
 
 #footer a:hover {
-  color: #555;
+  color: #111;
 }
 
 .dark #footer a:hover {
@@ -351,13 +386,33 @@ b, strong {
   font-weight: 700;
 }
 
-code, pre {
+code, pre, .crypto {
   font-family: monospace;
   background: #eee;
   color: #000;
   padding: 0.05em 0.3em;
 }
 
+.crypto {
+  word-break: break-all;
+  padding: 0.1em 0.3em;
+  line-height: 1.7em;
+  visibility: hidden;
+}
+
+.crypto.decoded {
+  visibility: visible;
+}
+
+.crypto::after {
+  content: 'Loading...';
+  visibility: visible;
+}
+
+.crypto.decoded::after {
+  content: '';
+  visibility: hidden;
+}
 
 .option input[type="checkbox"] {
   position: absolute !important;
@@ -834,4 +889,9 @@ input:checked + label, button, .button, .dark .button, .button:visited, .dark .b
 
 #outer-container {
   height: 100%;
+}
+
+.donate p, .donate li {
+  margin-top: .9em;
+  margin-bottom: .9em;
 }

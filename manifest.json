@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Image Max URL",
   "author": "qsniyg",
-  "version": "2025.5.0",
+  "version": "2025.11.1",
 
   "description": "Finds larger or original versions of images",
 
@@ -12,12 +12,6 @@
       "userscript.user.js"
     ],
     "persistent": true
-  },
-
-  "applications": {
-    "gecko": {
-      "id": "maxurl@qsniyg"
-    }
   },
 
   "browser_specific_settings": {

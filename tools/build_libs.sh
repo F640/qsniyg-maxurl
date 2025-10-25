@@ -69,6 +69,9 @@ EOF
 	sed -i 's/(!\([a-z]\)) *throw new Error("Automatic publicPath is not supported in this browser");/(!\1){\1=""}/' ffmpeg.min.orig.js
 	# finally cat it all together
 	echo "var FFMPEG_CORE_WORKER_SCRIPT;var _fakeGlobal={window:window};" > ffmpeg.js
+	echo "var exports = void 0;" >> ffmpeg.js
+	echo "var module = void 0;" >> ffmpeg.js
+	echo "var define = void 0;" >> ffmpeg.js
 	cat fetch_shim.js >> ffmpeg.js
 	#cat ffmpeg-core.js >> ffmpeg.js
 	echo "" >> ffmpeg.js
@@ -93,6 +96,9 @@ if [ -f orig/mpd-parser.js ]; then
 	cp orig/m3u8-parser.js m3u8-parser.js
 	sed -i 's/}(this, function (exports/}(_fakeGlobal, function (exports/' m3u8-parser.js
 	echo "var _fakeGlobal={window: window};" > stream_parser.js
+	echo "var exports = void 0;" >> stream_parser.js
+	echo "var module = void 0;" >> stream_parser.js
+	echo "var define = void 0;" >> stream_parser.js
 	cat mpd-parser.js m3u8-parser.js >> stream_parser.js
 	echo "" >> stream_parser.js
 	echo "var lib_export = { dash: _fakeGlobal.mpdParser, hls: _fakeGlobal.m3u8Parser };" >> stream_parser.js

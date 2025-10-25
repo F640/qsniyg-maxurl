@@ -1,16 +1,27 @@
-2025.7.0 (in-dev)
+2025.11.2 (in-dev)
+
+Special thanks to fyhtma for their contributions and reports for this release
+
+---
+
+2025.11.1
 
 New features:
 
+ * Support for ~400 new websites (using ~160 new rules)
  * Option to toggle the website request button
  * Option for userscript to enable XHR hotpatching (disabled by default)
+ * Option to disable story views for Instagram (disabled by default)
+ * Host page variants for certain format variables can now be used
+ * Option to fill format variables with page format variables (disabled by default)
 
 Improvements:
 
- * Various improvements/fixes to existing rules (including Google Docs, Flickr, VK)
+ * Various improvements/fixes to existing rules (including Flickr, Google Docs, Instagram, VK, Xiaohongshu)
  * Chunked downloads can also be used in extension
  * Support web archive images
  * Support GM_cookie for userscript
+ * Enable custom gallery button by default
 
 Bugfixes:
 
@@ -18,12 +29,15 @@ Bugfixes:
  * Fix custom gallery failing under Violentmonkey
  * Fall through on zero content length images
  * Fix crash when popping up for video removed from page
- * Fix gallery downloads failing for websites that use requirejs
+ * Fix gallery and HLS/DASH downloads failing for websites that use requirejs
  * Fix infinite loop on some bad images
  * Fix open in new tab under ScriptCat (thanks to fireattack for reporting)
  * Fix popup not working on some image tabs when using Violentmonkey under Firefox (thanks to F640 on github for reporting)
+ * Minor performance improvements
+ * Fix the userscript not working under later Tampermonkey versions (thanks to Liz and Noodlers for reporting)
+ * Fix extension not loading under edge (#1486, thanks to silveroxides for reporting)
 
-Special thanks to nimbuz, remlap, fyhtma, sn3akybear, wikigen, kidonng, FecklessFeck, f2005, Egor Popov, Liz, haarp, F640, fireattack, karpuzikov, drunub, Froktime, in-the-halfway, James Joint, XiaoSong-CPE, meloner, Earthworm-Banana, RAT, schleeb, siloricity, WolfSkin0, bl8ejeans, Cirnyan, elevate for their contributions and reports for this release
+Special thanks to nimbuz, remlap, fyhtma, sn3akybear, wikigen, kidonng, FecklessFeck, f2005, Egor Popov, Liz, haarp, F640, fireattack, karpuzikov, drunub, Froktime, in-the-halfway, James Joint, XiaoSong-CPE, meloner, Earthworm-Banana, RAT, schleeb, siloricity, WolfSkin0, bl8ejeans, Cirnyan, elevate, thomased9412, BlindWanda, adz, Dietz, Bayraktar, iotaOmicron, Emasoft, Noodlers, Mio, silveroxides, JayCubby-enwiki for their contributions and reports for this release
 
 ---
 
