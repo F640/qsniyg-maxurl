@@ -1,6 +1,42 @@
-2025.11.2 (in-dev)
+2025.11.3 (in-dev)
 
-Special thanks to fyhtma for their contributions and reports for this release
+New features:
+
+ * Comment support for black/whitelists with presets (#1498, thanks to Julian on discord for the idea)
+ * Option to disable websites from converting images to webp/avif (#1502, disabled by default, thanks to sn3akyb3ar for the idea)
+
+Improvements:
+
+ * Various improvements/fixes to existing rules (including Amazon, Ebay, Google Images, Pinterest, Shopify, Snapchat, Squarespace)
+
+Bugfixes:
+
+ * Fix redirect infobox crashing on some websites
+ * Fix invalid data URL on some websites
+ * Fix crash on chunked download when response data exceeds Content-Length
+ * Fix detected filename when / is in a query string
+ * Fix duplicated highlights in custom gallery caused by selecting child or parent element
+ * Fix custom gallery drag selection silently cancelling changes
+ * Fix gallery downloads not working for plain links
+ * Fix gallery counter input text color (#1514, thanks to Korb for reporting)
+ * Fix translation for profiled settings not respecting user preference (#1515, thanks to Korb for reporting)
+ * Fix infinite loop when redirecting caused by protocol change (#1517, thanks to Froktime for reporting)
+
+Special thanks to Julian, fyhtma, biziclop, in-the-halfway, sn3akyb3ar, karpuzikov, iotaOmicron, Saine Grey, bruceschaff, JayCubby-enwiki, Korb, Froktime for their contributions and reports for this release
+
+---
+
+2025.11.2
+
+New features:
+
+ * Support for ~30 new websites (using ~20 new rules)
+
+Improvements:
+
+ * Various improvements/fixes to existing rules (including Shopify)
+
+Special thanks to fyhtma, in-the-halfway, Liz, biziclop, iotaOmicron for their contributions and reports for this release
 
 ---
 
